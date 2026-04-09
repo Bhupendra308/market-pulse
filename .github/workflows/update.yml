@@ -8,13 +8,19 @@ on:
 permissions:
   contents: write
 
+# This tells GitHub to use the newer Node.js 24 engine
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   refresh-data:
     runs-on: ubuntu-latest
     steps:
+      # Use @v5 or @v6 for the latest Node support
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 
 
+      # Use @v5 for the latest Python setup support
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -32,7 +38,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/processed_data.csv
+          git add processed_data.csv
           if git diff --staged --quiet; then
             echo "No dataset changes detected."
           else

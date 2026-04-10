@@ -16,6 +16,7 @@ ASSETS = {
 }
 
 OUTPUT_PATH = Path("processed_data.csv")
+OUTPUT_COLUMNS = ["date", "symbol", "asset_name", "price", "volume", "ma_7", "daily_pct_change"]
 
 
 def fetch_history(symbol: str, lookback_days: int = 30) -> pd.DataFrame:
@@ -86,9 +87,24 @@ def build_dataset() -> pd.DataFrame:
 
 def main() -> None:
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    dataset = build_dataset()
-    dataset.to_csv(OUTPUT_PATH, index=False)
-    print(f"Saved {len(dataset)} rows to {OUTPUT_PATH}")
+    try:
+        dataset = build_dataset()
+        dataset.to_csv(OUTPUT_PATH, index=False)
+        print(f"Saved {len(dataset)} rows to {OUTPUT_PATH.resolve()}")
+        return
+    except Exception as exc:
+        # In scheduled automation we prefer "no update" over a hard failure.
+        # If the upstream API is flaky/rate-limited, keep the previous dataset.
+        if OUTPUT_PATH.exists():
+            print(f"WARNING: dataset refresh failed; keeping existing {OUTPUT_PATH.resolve()}")
+            print(f"Reason: {exc}")
+            return
+
+        # If there's no previous dataset, create an empty-but-valid CSV so
+        # downstream steps (dashboard + commit job) don't crash on missing file.
+        pd.DataFrame(columns=OUTPUT_COLUMNS).to_csv(OUTPUT_PATH, index=False)
+        print(f"WARNING: dataset refresh failed; wrote empty {OUTPUT_PATH.resolve()}")
+        print(f"Reason: {exc}")
 
 
 if __name__ == "__main__":

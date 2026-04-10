@@ -28,11 +28,16 @@ jobs:
       - name: Build fresh dataset
         run: python data_engine.py
 
+      - name: Verify dataset + show diagnostics
+        run: |
+          pwd
+          ls -la
+          test -f processed_data.csv
+
       - name: Commit and push if data changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          test -f processed_data.csv
           git add processed_data.csv
           if git diff --staged --quiet; then
             echo "No dataset changes detected."

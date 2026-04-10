@@ -18,7 +18,7 @@ hide_st_style = """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # 2. Data Loading
-DATA_PATH = Path("data/processed_data.csv")
+DATA_PATH = Path("processed_data.csv")
 
 @st.cache_data
 def load_data() -> pd.DataFrame:

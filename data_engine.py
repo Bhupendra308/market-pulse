@@ -15,7 +15,7 @@ ASSETS = {
     "AAPL": "Apple",
 }
 
-OUTPUT_PATH = Path("data/processed_data.csv")
+OUTPUT_PATH = Path("processed_data.csv")
 
 
 def fetch_history(symbol: str, lookback_days: int = 30) -> pd.DataFrame:
